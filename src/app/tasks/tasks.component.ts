@@ -1,5 +1,6 @@
-import { Component, computed, input } from '@angular/core';
+import { Component, computed, input, signal } from '@angular/core';
 import { TaskComponent } from './task/task.component';
+import { Task } from './task/task.model';
 
 @Component({
   selector: 'app-tasks',
@@ -12,7 +13,7 @@ export class TasksComponent {
   userId = input.required<string | undefined>();
   name = input.required<string | undefined>();
 
-  tasks = [
+  tasks = signal<Task[]>([
     {
       id: 't1',
       userId: 'u1',
@@ -36,12 +37,18 @@ export class TasksComponent {
         'Prepare and describe an issue template which will help with project management',
       dueDate: '2024-06-15',
     },
-  ];
+  ]);
 
   selectedUserTasks = computed(() => {
     if (!this.userId()) {
       return [];
     }
-    return this.tasks.filter((task) => task.userId === this.userId());
+
+    return this.tasks().filter((task) => task.userId === this.userId());
   });
+
+  onCompleteTask(taskId: string) {
+    this.tasks.update((tasks) => tasks.filter((task) => task.id !== taskId));
+    console.log('delete task : ', this.tasks);
+  }
 }
